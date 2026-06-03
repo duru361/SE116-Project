@@ -1,15 +1,26 @@
+package objectville;
+
+import java.util.List;
+
 public abstract class Cell {
-    private int x;
-    private int y;
-    public Cell(int x,int y){
-        this.x=x;
-        this.y=y;
-    }
-    public int getX() {
-        return x;
-    }
-    public int getY() {
-        return y;
+
+    protected final int row;
+    protected final int col;
+
+    protected Cell(int row, int col) {
+        this.row = row;
+        this.col = col;
     }
 
+    public int getRow() { return row; }
+    public int getCol() { return col; }
+
+    public abstract char symbol();
+
+    protected void indexInto(City city) { }
+
+    int absorb(Utility u, int available, List<String> log) { return 0; }
+
+    @Override
+    public String toString() { return String.valueOf(symbol()); }
 }
