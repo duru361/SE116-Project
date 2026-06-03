@@ -69,3 +69,77 @@ public final class City {
         accumulateProduction();
     }
 }
+private static String coord(Cell c) { return "(" + c.getRow() + "," + c.getCol() + ")"; }
+    private static String name(Service s)  { return s.name().toLowerCase(); }
+
+    private double distance(Cell a, Cell b) {
+        int dr = a.getRow() - b.getRow();
+        int dc = a.getCol() - b.getCol();
+        return Math.sqrt((double) dr * dr + (double) dc * dc);
+    }
+
+    private void distributeServices() {
+        for (ServiceProvider sp : serviceProviders) {
+            Service s = sp.provides();
+            for (Zone z : zones) {
+                if (z.usesService(s) && distance(sp, z) <= sp.radius()) {
+                    z.grantService(s);
+                    emit(z.typeName() + " at " + coord(z) + " received " + name(s) + " service");
+                }
+            }
+        }
+    }
+
+    private void distributeUtilities() {
+        for (Zone z : zones) {
+            z.prepareRemainingDemand(Utility.ELECTRICITY);
+            z.prepareRemainingDemand(Utility.WATER);
+            z.prepareRemainingDemand(Utility.INTERNET);
+        }
+        for (UtilityProvider p : utilityProviders) {
+            bfsDistribute(p, p.provides());
+        }
+    }
+
+    void bfsDistribute(UtilityProvider provider, Utility u) {
+        int remaining = provider.capacity();
+        boolean[][] visited = new boolean[rows][cols];
+        Queue<Cell> queue = new ArrayDeque<>();
+
+        enqueueNeighbors(provider, visited, queue);
+
+        while (!queue.isEmpty() && remaining > 0) {
+            Cell cell = queue.poll();
+            remaining -= cell.absorb(u, remaining, log);
+            enqueueNeighbors(cell, visited, queue);
+        }
+    }
+
+    private void enqueueNeighbors(Cell from, boolean[][] visited, Queue<Cell> queue) {
+        for (int[] d : DIRS) {
+            int nr = from.getRow() + d[0];
+            int nc = from.getCol() + d[1];
+            if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+            if (visited[nr][nc]) continue;
+            Cell n = grid[nr][nc];
+            if (n instanceof Connectable) {
+                visited[nr][nc] = true;
+                queue.add(n);
+            }
+        }
+    }
+
+    private void distributeResources() {
+        int numIC = industries.size() + commercials.size();
+        int numC  = commercials.size();
+        int numH  = houses.size();
+
+        int popEach   = (numIC > 0) ? prevPopulation / numIC : 0;
+        int goodsEach = (numC  > 0) ? prevGoods      / numC  : 0;
+        int lifeEach  = (numH  > 0) ? prevLifestyle  / numH  : 0;
+
+        for (Zone z : zones) {
+            z.receivePooled(popEach, goodsEach, lifeEach, log);
+        }
+    }
+}
