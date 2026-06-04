@@ -143,3 +143,23 @@ private static String coord(Cell c) { return "(" + c.getRow() + "," + c.getCol()
         }
     }
 }
+ private void updateAndGenerate() {
+        for (Zone z : zones) {
+            int old = z.getLevel();
+            z.update();
+            int now = z.getLevel();
+
+            emit(z.typeName() + " at " + coord(z) + " generated " + z.getOutput() + " " + z.resourceName());
+            if (now != old) {
+                String verb = (now > old) ? "levels up" : "levels down";
+                emit(z.typeName() + " at " + coord(z) + " " + verb + " from " + old + " to " + now);
+            }
+        }
+    }
+
+    private void accumulateProduction() {
+        prevPopulation = houses.stream().mapToInt(Zone::getOutput).sum();
+        prevGoods      = industries.stream().mapToInt(Zone::getOutput).sum();
+        prevLifestyle  = commercials.stream().mapToInt(Zone::getOutput).sum();
+    }
+}
