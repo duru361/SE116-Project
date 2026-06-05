@@ -1,0 +1,22 @@
+# ObjectVille II - sample map (10 x 10)
+#
+# Legend:
+#   P = Power plant      W = Water station    T = Internet hub
+#   F = Police (r=5)     D = Hospital (r=3)   S = School (r=4)
+#   H = Housing          I = Industrial       C = Commercial
+#   R = Road             E = Empty (wall - nothing passes through)
+#
+# The top block (rows 0-6) is one road-connected city served by all three
+# utility providers and all three service buildings, so its zones grow.
+# Row 7 is empty: it walls off the bottom block (row 9), whose houses can
+# never be reached by any utility and therefore stay at level 0 forever.
+P R R R R W R R R T
+R R R R R R R R R R
+R H H H H H H R C C
+R H D H H S H R R R
+R H H H F H H R I I
+R R R R R R R R R R
+H H R R R R R R H H
+R R R R R R R R R R
+E E E E E E E E E E
+H H R R R R R R H H
